@@ -1,0 +1,524 @@
+<title>じいやエージェント</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg: #FAFAF9;
+    --surface: #FFFFFF;
+    --ink: #1F1F1E;
+    --ink-2: #4A4A47;
+    --ink-3: #8A8985;
+    --line: #E4E2DD;
+    --accent: #E0B23A;
+    --accent-ink: #8A6510;
+    --tint: #FFF3C9;
+    --muted-bg: #EFEEEB;
+    --muted-ink: #5C5B57;
+    --del: #B4483C;
+    --del-tint: #F8E4E1;
+    --slack-side: #F3F2EF;
+    --dm-bg: #F7F6F3;
+    --mention-bg: #E8F0FB;
+    --mention-ink: #1D4E9E;
+    --shadow: 0 18px 50px -24px rgba(31, 31, 30, .28);
+    --own-line: #4A7BD0; --own-bg: #E8F0FB; --own-ink: #1D4E9E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --surface: #1E1E1C; --ink: #EDECE8; --ink-2: #BDBBB5; --ink-3: #85837D;
+      --line: #2E2D2A; --accent: #E8BE4F; --accent-ink: #F3D57A; --tint: #3A2F10;
+      --muted-bg: #2A2926; --muted-ink: #B0AEA8; --del: #E58A7E; --del-tint: #3D1F1B;
+      --slack-side: #1A1A18; --dm-bg: #1B1B19; --mention-bg: #1B2A44; --mention-ink: #BBD3F5;
+      --shadow: 0 18px 50px -24px rgba(0,0,0,.7);
+      --own-line: #6A9BE8; --own-bg: #1B2A44; --own-ink: #BBD3F5;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151514; --surface: #1E1E1C; --ink: #EDECE8; --ink-2: #BDBBB5; --ink-3: #85837D;
+    --line: #2E2D2A; --accent: #E8BE4F; --accent-ink: #F3D57A; --tint: #3A2F10;
+    --muted-bg: #2A2926; --muted-ink: #B0AEA8; --del: #E58A7E; --del-tint: #3D1F1B;
+    --slack-side: #1A1A18; --dm-bg: #1B1B19; --mention-bg: #1B2A44; --mention-ink: #BBD3F5;
+    --shadow: 0 18px 50px -24px rgba(0,0,0,.7);
+    --own-line: #6A9BE8; --own-bg: #1B2A44; --own-ink: #BBD3F5;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 16.5px; line-height: 1.85; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; }
+  h1, h2, h3, .display { font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif; text-wrap: balance; }
+  h2 { font-size: clamp(26px, 3.6vw, 36px); line-height: 1.35; margin: 0 0 16px; font-weight: 900; letter-spacing: -.01em; }
+  h3 { font-size: clamp(19px, 2.2vw, 22px); line-height: 1.45; margin: 0 0 10px; font-weight: 900; }
+  p { margin: 0; }
+  strong { font-weight: 700; color: var(--ink); }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; }
+  button { font: inherit; }
+
+  /* ---------- hero ---------- */
+  .hero { padding-block: 56px 48px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  .hero h1 { font-size: clamp(30px, 4.6vw, 50px); line-height: 1.3; margin: 10px 0 22px; font-weight: 900; letter-spacing: -.01em; }
+  .hero h1 em { font-style: normal; color: var(--accent-ink); white-space: nowrap; }
+  .brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .brand .name { font-size: 40px; font-weight: 900; line-height: 1; }
+  .brand .sub { color: var(--ink-3); font-size: 13px; letter-spacing: .08em; }
+  .tagline { font-size: clamp(18px, 2.2vw, 22px); font-weight: 700; margin-top: 8px; }
+
+  /* ---------- slack mock ---------- */
+  .slack { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; font-size: 14.5px; line-height: 1.55; }
+  .slack-top { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--slack-side); font-weight: 700; font-size: 13px; }
+  .slack-top .dots { display: flex; gap: 5px; } .slack-top .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+  .slack-top .ch { color: var(--ink-2); font-weight: 500; }
+  .msgs { padding: 12px 14px 10px; display: grid; gap: 12px; }
+  .msg { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: start; }
+  .av { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; font-size: 20px; background: var(--muted-bg); }
+  .av.human { background: var(--line); font-size: 13px; font-weight: 700; color: var(--ink-2); font-family: "Zen Maru Gothic", sans-serif; }
+  .av.sec { position: relative; overflow: visible; }
+  .av.sec i { position: absolute; right: -5px; bottom: -5px; width: 18px; height: 18px; border-radius: 5px; background: var(--line); color: var(--ink-2); font: 700 10px/18px "Zen Maru Gothic", sans-serif; font-style: normal; text-align: center; border: 2px solid var(--surface); }
+  .who { display: flex; align-items: center; gap: 6px; line-height: 1.2; margin-bottom: 3px; flex-wrap: wrap; }
+  .who b { font-weight: 700; }
+  .who .app { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: var(--line); color: var(--ink-2); font-weight: 700; letter-spacing: .04em; }
+  .who .t { color: var(--ink-3); font-size: 11.5px; }
+  .mention { color: var(--mention-ink); background: var(--mention-bg); padding: 0 3px; border-radius: 3px; }
+  .label { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; white-space: nowrap; font-weight: 700; line-height: 1.6; }
+  .label.uc { background: var(--muted-bg); color: var(--muted-ink); border: 1px solid transparent; }
+  .label.ok { background: var(--tint); color: var(--accent-ink); border: 1px solid var(--accent); }
+  .label.cal { display: block; margin-top: 4px; padding: 0; background: none; border: 0; color: var(--ink-3); font-size: 11.5px; font-weight: 500; }
+  .label.cal::before { content: "📅 "; }
+  .react { display: inline-flex; gap: 4px; margin-top: 5px; }
+  .react span { border: 1px solid var(--line); background: var(--dm-bg); border-radius: 999px; padding: 0 7px; font-size: 12px; line-height: 20px; }
+  .react span.on { border-color: var(--own-line); background: var(--own-bg); color: var(--own-ink); }
+  .sep { color: var(--ink-3); font-size: 11.5px; text-align: center; letter-spacing: .06em; padding-block: 2px; }
+  .btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .btns span { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 16px; font-weight: 700; font-size: 13.5px; }
+  .btns span.hit { border-color: var(--accent); background: var(--tint); color: var(--accent-ink); }
+  .btns span.warn { color: var(--ink-3); }
+  .btns span.primary { background: #007a5a; border-color: #007a5a; color: #fff; }
+  .draft { border-left: 3px solid var(--accent); padding: 4px 10px; margin: 6px 0; color: var(--ink-2); }
+  .plink { color: var(--mention-ink); font-size: 13px; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
+  .unfurl { border-left: 4px solid var(--line); padding: 6px 10px 6px 12px; margin: 6px 0 8px; font-size: 13px; color: var(--ink-2); }
+  .unfurl .uh { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .unfurl .uh i { width: 18px; height: 18px; border-radius: 4px; background: var(--line); color: var(--ink-2); font: 700 10px/18px "Zen Maru Gothic", sans-serif; font-style: normal; text-align: center; }
+  .unfurl .uh b { font-weight: 700; color: var(--ink); }
+  .unfurl .uf { margin-top: 4px; color: var(--ink-3); font-size: 11.5px; }
+  .unfurl .uf span { color: var(--mention-ink); }
+  .eph { margin: 0 -14px; padding: 8px 14px 10px; border-radius: 0; background: var(--muted-bg); }
+  .eph .only { display: flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 11.5px; margin-bottom: 6px; }
+  .eph .btns { margin-top: 8px; }
+  .me { justify-self: end; background: var(--muted-bg); color: var(--ink); border-radius: 12px; padding: 6px 12px; font-weight: 700; }
+
+  /* ---------- 課題: ビフォーアフター ---------- */
+  .problem { border-top: 1px solid var(--line); padding-block: 60px; }
+  .problem .story { color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px 6px; }
+  .problem .story p { margin: 0 0 14px; line-height: 1.9; }
+  .problem .story .who-card { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .problem .story .who-card .av { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--tint); font-size: 22px; }
+  .problem .story .who-card b { display: block; font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; color: var(--ink); font-size: 15px; }
+  .problem .lead { color: var(--ink-2); max-width: 36em; }
+  .ba { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; margin-top: 28px; }
+  .ba .arrow { text-align: center; color: var(--ink-3); font-size: 13px; line-height: 1.5; }
+  .ba .arrow b { display: block; font-size: 30px; color: var(--ink-2); line-height: 1; margin-bottom: 4px; }
+  .pane { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+  .pane .bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--slack-side); font-size: 12.5px; color: var(--ink-2); }
+  .pane .bar b { color: var(--ink); }
+  .pane .body { padding: 16px 18px; font-size: 15px; line-height: 1.9; flex: 1; }
+  .pane .foot { padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 8px; }
+  /* ChatGPT風 */
+  .gpt .ask { background: var(--dm-bg); border: 1px solid var(--line); border-radius: 14px 14px 4px 14px; padding: 8px 12px; margin-left: 40px; font-size: 13.5px; color: var(--ink-2); }
+  .gpt .ans { margin-top: 12px; display: grid; grid-template-columns: 26px 1fr; gap: 10px; }
+  .gpt .ans .ic { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .gpt .ans .txt { color: var(--ink); }
+  .input { margin: 0 12px 12px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-3); }
+  .input .go { width: 26px; height: 26px; border-radius: 7px; background: var(--line); display: grid; place-items: center; font-size: 12px; color: var(--ink-2); }
+  .gpt .input { border-radius: 999px; }
+  /* 頭の中 */
+  .thoughts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+  .thought { background: var(--surface); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 10px 14px; color: var(--ink-2); font-size: 14.5px; line-height: 1.7; }
+  .thought .n { font-size: 11px; letter-spacing: .1em; color: var(--ink-3); font-weight: 700; display: block; }
+  /* Slack送信済み */
+  .sent .msgs { padding: 12px 14px 12px; }
+  .sent .txt { color: var(--ink); }
+
+  .verdict { margin-top: 26px; color: var(--ink-2); }
+  .punch { margin-top: 24px; font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; font-size: clamp(22px, 3vw, 30px); line-height: 1.5; }
+  .turn { margin-top: 18px; font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; font-size: clamp(22px, 3vw, 30px); line-height: 1.5; color: var(--accent-ink); }
+
+  /* ---------- 解決 ---------- */
+  .solution { border-top: 1px solid var(--line); padding-block: 60px 20px; }
+  .solution .lead { color: var(--ink-2); }
+  .solution .qa { border-top: none; padding-block: 36px 28px; }
+  .solution .cap { font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; color: var(--ink); font-size: 16px; }
+  .after { padding-block: 28px 12px; }
+  .after .text { max-width: 40em; margin-bottom: 22px; }
+  .thr { font-size: 12px; color: var(--mention-ink); margin-top: 4px; }
+  .rep { display: grid; grid-template-columns: 24px 1fr; gap: 8px; align-items: start; margin: 6px 0 0 0; padding-left: 10px; border-left: 2px solid var(--line); font-size: 13.5px; }
+  .rep .av { width: 24px; height: 24px; font-size: 14px; border-radius: 6px; }
+  .rep .av.sec i { width: 13px; height: 13px; font-size: 8px; line-height: 13px; right: -4px; bottom: -4px; border-width: 1.5px; }
+  .rep .who b { font-size: 13px; }
+  .rep .label { font-size: 10.5px; }
+  .digest li { margin: 0; padding: 10px 0 0; list-style: none; }
+  .digest { margin: 8px 0 0; padding: 0; }
+  .digest .q { color: var(--ink); }
+  .digest .q b { font-weight: 700; margin-right: 4px; }
+  .hl { background: var(--muted-bg); border-radius: 6px; padding: 8px 10px; margin-top: 8px; font-size: 13.5px; color: var(--ink-2); }
+
+  /* ---------- FAQ ---------- */
+  .faq { border-top: 1px solid var(--line); padding-block: 60px; }
+  .faq h2 { margin-bottom: 8px; }
+  h2.oneline { font-size: clamp(22px, 3vw, 32px); white-space: nowrap; text-wrap: initial; }
+  @media (max-width: 900px) { h2.oneline { white-space: normal; } }
+  .faq .intro { color: var(--ink-2); margin-bottom: 20px; }
+  .qa { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding-block: 36px; border-top: 1px solid var(--line); }
+  .qa.rev .text { order: 2; }
+  .qa.plain { grid-template-columns: 1fr; padding-block: 26px; }
+  .qa.plain .text { max-width: 42em; }
+  .qa .text { max-width: 30em; }
+  .qa p { color: var(--ink-2); }
+  .qa p + p { margin-top: .8em; }
+  .qa .cap { margin-top: 10px; color: var(--ink-3); font-size: 13px; }
+  .twin { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 22px; align-items: start; }
+  .steps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 28px; align-items: start; }
+  .step .sh { font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .step .sh i { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--surface); font-style: normal; font-size: 13px; }
+  .step .sn { color: var(--ink-2); font-size: 13.5px; margin-top: 10px; }
+  .notes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 26px; }
+  .notes div { border-top: 2px solid var(--accent); padding-top: 10px; color: var(--ink-2); font-size: 14px; }
+  .notes b { color: var(--ink); display: block; margin-bottom: 4px; font-family: "Zen Maru Gothic", sans-serif; }
+  .twin-h { font-size: 12px; letter-spacing: .1em; color: var(--ink-3); font-weight: 700; margin: 0 0 8px 4px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: var(--muted-bg); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+
+  footer { padding-block: 24px 48px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  @media (max-width: 820px) {
+    .hero, .qa, .ba, .thoughts, .twin, .steps, .notes { grid-template-columns: 1fr; gap: 16px; }
+    .ba .arrow b { transform: rotate(90deg); display: inline-block; }
+    .qa.rev .text { order: 0; }
+    .hero { padding-block: 36px 28px; }
+    .problem, .faq { padding-block: 44px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero .slack { animation: rise .6s ease-out both; }
+    @keyframes rise { from { transform: translateY(8px); opacity: .6; } to { transform: none; opacity: 1; } }
+  }
+</style>
+
+<div class="wrap">
+  <!-- ヒーロー -->
+  <header class="hero">
+    <div>
+      <div class="eyebrow">AI HACK 2026 — 業務を自律化するAIエージェント</div>
+      <h1>Slack に住む、<br><em>あなたの執事</em>。</h1>
+      <div class="brand">
+        <span class="name display">じいやエージェント</span>
+        <span class="sub">JIIYA AGENT</span>
+      </div>
+      <p class="tagline display">ビジネスチャットはじいやにお任せください🤵‍♂️</p>
+    </div>
+
+    <div class="slack" aria-label="Slackでのやり取りの例">
+      <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack</span></div>
+      <div class="msgs">
+        <div class="msg">
+          <div class="av human">高</div>
+          <div><div class="who"><b>高橋 健</b><span class="t">10:02</span></div>
+            <div><span class="mention">@尾崎 愛</span> LPの件、一回すり合わせたいです。来週どこかで30分もらえますか？</div></div>
+        </div>
+        <div class="msg">
+          <div class="av sec">🤵‍♂️<i>尾</i></div>
+          <div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span><span class="t">10:02</span></div>
+            <div>来週ですと、木曜14時か金曜10時が空いております。いかがでしょうか。<span class="label cal">カレンダーを確認して返しました</span></div></div>
+        </div>
+        <div class="msg">
+          <div class="av human">高</div>
+          <div><div class="who"><b>高橋 健</b><span class="t">10:04</span></div>
+            <div>木曜でお願いします！</div></div>
+        </div>
+        <div class="msg">
+          <div class="av sec">🤵‍♂️<i>尾</i></div>
+          <div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span><span class="t">10:04</span></div>
+            <div>木曜14時で予定を入れ、招待をお送りいたしました。<span class="label cal">カレンダーを確認して返しました</span></div>
+            <div class="react"><span>👍 1</span></div></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 課題 -->
+  <section class="problem">
+    <div class="eyebrow">課題</div>
+    <h2 class="oneline">AIに返信を書いてもらっても、結局ちょっと直してしまう</h2>
+    <div class="story">
+      <div class="who-card"><span class="av">🧑‍💻</span><span><b>じいやエージェントを作った人の話</b></span></div>
+      <p>Slack でいちばん困る質問が「この機能、どれくらいで実装できそう？」です。本音は「見えてる範囲ならフルコミットで5日。でも他のタスクとの優先度と、要件の詰めが要るので、チームで相談しないと分からない」。全部本当なんだけど、伝え方がむずかしい。</p>
+      <p>こういうとき、最近は AI に下書きを頼んでいます。本音を渡せば、10秒で角の取れた文章が出てくる。最高。……のはずが、結局毎回微修正してます。中身は合ってる。合ってないのはニュアンス。「5日程度」は約束に聞こえるし、「改めてご回答」は曖昧すぎる。コピペして、ニュアンスを直して、送る。気づいたら15分。</p>
+    </div>
+
+    <div class="ba">
+      <div class="pane gpt" aria-label="AIに下書きを頼んだ画面">
+        <div class="bar"><span><b>ChatGPT</b></span></div>
+        <div class="body">
+          <div class="ask">高橋さんから「CSVエクスポート機能、どれくらいでできそう？」と来た。見えてる範囲ならフルコミットで5日、ただ他タスクの優先度と要件定義次第なのでチームで相談が要る、で返信文を書いて</div>
+          <div class="ans"><div class="ic">AI</div><div class="txt">高橋さん、お問い合わせありがとうございます。CSVエクスポート機能につきましては、現時点で把握している範囲ではフルコミットで5日程度と見込んでおります。ただし、進行中の他タスクとの優先度や詳細な要件定義が必要となるため、チーム内で相談の上、改めてご回答させていただきます。</div></div>
+        </div>
+        <div class="input"><span>メッセージを送信</span><span class="go">↑</span></div>
+      </div>
+
+      <div class="arrow" aria-hidden="true"><b>→</b>コピーして<br>直して</div>
+
+      <div class="pane sent slack" aria-label="実際にSlackに送った文">
+        <div class="bar"><span><b>Slack</b></span></div>
+        <div class="msgs">
+          <div class="msg"><div class="av human">高</div><div><div class="who"><b>高橋 健</b><span class="t">9:48</span></div>
+            <div><span class="mention">@尾崎 愛</span> お客様から「CSVエクスポート機能っていつ頃できそう？」と聞かれてます。ざっくりでいいので工数感、教えてもらえますか？</div></div></div>
+          <div class="msg"><div class="av human">尾</div><div><div class="who"><b>尾崎 愛</b><span class="t">10:03</span></div>
+            <div class="txt">ざっくりですが、今見えてる範囲だとフルコミットで5日くらいかなと思います🙏 ただ他のタスクとの兼ね合いと要件の詰めが必要なので、正式にはチームで相談してからお返ししますね！お客様には「来週中に目処をお伝えする」くらいでお願いできますか？</div>
+            <div class="react"><span>🙏 1</span></div></div></div>
+        </div>
+        <div class="input"><span>メッセージを送信</span><span class="go">➤</span></div>
+      </div>
+    </div>
+
+    <div class="thoughts" aria-label="直しながら考えていること">
+        <div class="thought"><span class="n">頭の中</span>「5日程度」って書くと5日で確定扱いされる。「ざっくり」「くらい」を足しとかないと</div>
+        <div class="thought"><span class="n">頭の中</span>「改めてご回答」は逃げてる感。いつ答えるかを書かないと、また催促が来る</div>
+        <div class="thought"><span class="n">頭の中</span>高橋さんはお客様に何か言わなきゃいけない。その言い方まで渡さないと</div>
+        <div class="thought"><span class="n">頭の中</span>「お問い合わせありがとうございます」は社内で他人行儀。消す。…よし、自分っぽくなった</div>
+      </div>
+
+    <p class="verdict">AI の文章は間違ってない。でも「5日をどれだけ約束にしていいか」「高橋さんがお客様に何て言うか」「どこまで砕けていいか」は私しか知らないので、直す。<strong>AI が賢くなっても、ここだけは減らない。</strong></p>
+
+    <p class="punch">AI で浮いた時間、ニュアンスの調整に使ってる。</p>
+    <p class="turn">AI を使っているのはもう周知の事実。なら、AI に AI として返してもらえばいい。ニュアンスの調整はしなくて済む。そう思って作りました🤵‍♂️</p>
+  </section>
+
+  <!-- 解決 -->
+  <section class="solution">
+    <div class="eyebrow">こうしました</div>
+    <h2>あなた宛てのメッセージに、<br>あなたのAI執事のじいやが返します</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="sh"><i>1</i>誰かがあなたをメンションする</div>
+        <div class="slack">
+          <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack #general</span></div>
+          <div class="msgs">
+            <div class="msg"><div class="av human">高</div><div><div class="who"><b>高橋 健</b><span class="t">9:48</span></div>
+              <div><span class="mention">@尾崎 愛</span> お客様から「CSVエクスポート機能っていつ頃できそう？」と聞かれてます。ざっくりでいいので工数感、教えてもらえますか？</div></div></div>
+            <div class="eph"><div class="only"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5C6.5 5 2.3 8.6 1 12c1.3 3.4 5.5 7 11 7s9.7-3.6 11-7c-1.3-3.4-5.5-7-11-7z"/><circle cx="12" cy="12" r="4.2" fill="var(--muted-bg)"/><circle cx="12" cy="12" r="2.4"/></svg> あなたにだけ表示</div>
+              <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="app">APP</span><span class="t">9:48</span></div>
+                <div>高橋さまよりお尋ねでございます。わたくしが対応いたしましょうか。</div>
+                <div class="btns"><span class="primary">じいやに任せる</span><span>自分で返す</span></div></div></div></div>
+          </div>
+        </div>
+        <div class="sn">じいやは勝手に出ません。あなたにだけ見えるひと言で、控えています。</div>
+      </div>
+      <div class="step">
+        <div class="sh"><i>2</i>じいやが、あなたに聞く</div>
+        <div class="slack">
+          <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">🤵‍♂️ じいや — DM</span></div>
+          <div class="msgs">
+            <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">9:48</span></div>
+              <div>高橋さまよりお尋ねがございました。</div>
+              <div><b>CSVエクスポートの工数感、いかがお伝えいたしましょう。</b></div></div></div>
+            <div class="me">見えてる範囲ならフルコミットで5日。ただ他タスクの優先度と要件次第だから、正式にはチームで相談してから</div>
+          </div>
+        </div>
+        <div class="sn">本音をそのまま書くだけ。敬語も言い回しも考えない。</div>
+      </div>
+      <div class="step">
+        <div class="sh"><i>3</i>じいやが、じいやとして返信</div>
+        <div class="slack">
+          <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack #general</span></div>
+          <div class="msgs">
+            <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span><span class="t">9:51</span></div>
+              <div>尾崎さまに伺ったところ、今見えている範囲ではフルコミットで5日ほどとのことです。ただ、他のタスクとの優先度と要件の詰めが必要なため、正式にはチームで相談の上お返しするとのことです。</div>
+              <div class="react"><span class="on">🙏 1</span></div></div></div>
+          </div>
+        </div>
+        <div class="sn">伝聞なので、そのままの情報として伝わります。</div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div><b>直さなくていい</b>AIが書いたことを隠さないので、あなたっぽく直す必要がありません。</div>
+      <div><b>言い切らない</b>「尾崎さまに伺ったところ、〜とのことです」。伝聞なので、見立てが約束にならない。</div>
+      <div><b>勝手に送らない</b>文面はあなたが見てから。確認したものだけ送ります。</div>
+    </div>
+
+    <div class="qa rev">
+      <div class="text">
+        <h3>じいやとのDMは、こんな感じ</h3>
+        <p>じいやからのDMに、<strong>ボタンを押すか、一言書くか。</strong> それだけです。敬語も語尾も書き出しも考えない。</p>
+        <p>答えると、じいやが伝聞の文面にして見せに来ます。「送る」を押せば相手に届く。直したければ直せる。</p>
+      </div>
+      <div class="slack" aria-label="本人に届くDMの例">
+        <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">🤵‍♂️ じいや — ダイレクトメッセージ</span></div>
+        <div class="msgs">
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">9:48</span></div>
+            <div>高橋さまよりお尋ねがございました。いかがいたしましょう。</div>
+            <div class="unfurl"><div class="uh"><i>高</i><b>高橋 健</b></div>来週打ち合わせできますか？資料もほしいです<div class="uf">#general に投稿 · 今日 9:48 · <span>メッセージを表示</span></div></div>
+            <div><b>資料はいつお送りになりますか。</b></div>
+            <div class="btns"><span>今日中</span><span class="hit">明日中</span><span class="warn">来週</span></div></div></div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">9:49</span></div>
+            <div>高橋さまには、このようにお返しいたします。</div>
+            <div class="draft">来週ですと金曜10時が空いております。資料は、尾崎さまに伺ったところ明日中にお送りするとのことです。</div>
+            <div class="btns"><span class="primary">送る</span><span>直して送る</span><span class="warn">送らない</span></div></div></div>
+          <div class="sep">— 別の日 —</div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">14:28</span></div>
+            <div>高橋さまよりお尋ねがございました。いかがいたしましょう。</div>
+            <div class="unfurl"><div class="uh"><i>高</i><b>高橋 健</b></div>LP改修の件、ざっくりでいいので見積感教えてもらえますか？<div class="uf">#general に投稿 · 今日 14:28 · <span>メッセージを表示</span></div></div>
+            <div><b>概算の金額を、いかがお伝えいたしましょう。</b></div></div></div>
+          <div class="me">税抜50万前後。正式なのは明日PDFで送る</div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">14:29</span></div>
+            <div>高橋さまには、このようにお返しいたします。</div>
+            <div class="draft">尾崎さまに伺ったところ、LP改修はざっくり税抜50万円前後とのことです。正式なお見積りは明日PDFでお送りいたします。</div>
+            <div class="btns"><span class="primary">送る</span><span>直して送る</span><span class="warn">送らない</span></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="after">
+      <div class="text">
+        <h3>主人が出るなら、執事は控える</h3>
+        <p>あなたが席にいるなら、じいやは勝手に出てきません。メンションが来ると、スレッドに<strong>あなたにだけ見えるひと言</strong>が出ます。「わたくしが対応いたしましょうか」。任せるなら押す、自分で返すなら押さない。離席中なら、待たずにDMで聞きに来ます。</p>
+      </div>
+      <div class="twin">
+        <div>
+          <div class="twin-h">みんなに見える</div>
+          <div class="slack">
+            <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack</span></div>
+            <div class="msgs">
+              <div class="msg"><div class="av human">山</div><div><div class="who"><b>山本 由紀</b><span class="t">10:18</span></div>
+                <div><span class="mention">@尾崎 愛</span> 来週の定例、10時→10時半にずらしても大丈夫？</div>
+                <div class="rep"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span><span class="t">10:18</span></div><div>10時半で差し支えございません。<span class="label cal">カレンダーを確認して返しました</span></div></div></div></div></div>
+              <div class="msg"><div class="av human">高</div><div><div class="who"><b>高橋 健</b><span class="t">10:31</span></div>
+                <div><span class="mention">@尾崎 愛</span> LPのファーストビュー、修正版いつ頃出せそうですか？</div>
+                <div class="rep"><div class="av human">尾</div><div><div class="who"><b>尾崎 愛</b><span class="t">10:33</span></div><div>明日には出せます！</div></div></div></div></div>
+              <div class="msg"><div class="av human">高</div><div><div class="who"><b>高橋 健</b><span class="t">10:52</span></div>
+                <div><span class="mention">@尾崎 愛</span> 来週の定例、対面とオンラインどちらにしましょうか？</div>
+                <div class="rep"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span><span class="t">11:05</span></div><div>尾崎さまに伺ったところ、オンラインがよろしいとのことです。</div></div></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="twin-h">あなただけに見える</div>
+          <div class="slack" aria-label="あなたにだけ見えるボタンと、その後のDM">
+            <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack</span></div>
+            <div class="msgs">
+              <div class="sep">— 10:31 の件 —</div>
+              <div class="eph"><div class="only"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5C6.5 5 2.3 8.6 1 12c1.3 3.4 5.5 7 11 7s9.7-3.6 11-7c-1.3-3.4-5.5-7-11-7z"/><circle cx="12" cy="12" r="4.2" fill="var(--muted-bg)"/><circle cx="12" cy="12" r="2.4"/></svg> あなたにだけ表示</div>
+                <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="app">APP</span><span class="t">10:31</span></div>
+                  <div>高橋さまよりお尋ねでございます。わたくしが対応いたしましょうか。</div>
+                  <div class="btns"><span class="primary">じいやに任せる</span><span class="hit">自分で返す</span></div></div></div></div>
+              <div class="sep">— 10:52 の件 —</div>
+              <div class="eph"><div class="only"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5C6.5 5 2.3 8.6 1 12c1.3 3.4 5.5 7 11 7s9.7-3.6 11-7c-1.3-3.4-5.5-7-11-7z"/><circle cx="12" cy="12" r="4.2" fill="var(--muted-bg)"/><circle cx="12" cy="12" r="2.4"/></svg> あなたにだけ表示</div>
+                <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="app">APP</span><span class="t">10:52</span></div>
+                  <div>高橋さまよりお尋ねでございます。わたくしが対応いたしましょうか。</div>
+                  <div class="btns"><span class="primary">じいやに任せる</span><span>自分で返す</span></div></div></div></div>
+              <div class="sep">— DM —</div>
+              <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">11:03</span></div>
+                <div>承りました。高橋さまへのお返事につきまして、ひとつお伺いいたします。</div>
+                <div><b>来週の定例は、対面とオンラインのどちらになさいますか。</b></div>
+                <div class="btns"><span>対面</span><span class="hit">オンライン</span></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="eyebrow">FAQ</div>
+    <h2>よくある疑問</h2>
+
+    <div class="qa">
+      <div class="text">
+        <h3>AIに任せて、大丈夫？</h3>
+        <p>日程だけは、じいやが自分で決めます。あなたのカレンダーの空きと、あなたが決めたルール（稼働時間、前後の余白、入れない曜日、1日の上限）の範囲内なら予定を入れ、相手を招待して、DMで報告します。範囲外なら聞きます。</p>
+        <p>それ以外は、あなたに聞かずに返事をしません。可否はあなたが選び、文面はあなたが見てから送られます。<strong>じいやが自由に書いた文は、必ずあなたの確認を通ります。</strong></p>
+        <p>じいやが自分で決めた返事には、<strong>📅 カレンダーを確認して返しました</strong>の一行が付きます。この一行はAIではなく、カレンダーを実際に読んだ記録からシステムが付けます。「予定を入れました」と書いてあるのに実際には入れていない、という文は、システムが止めてあなたに回します。</p>
+        <p>クレームや謝罪のような話は、じいやが返すべきではないと判断して、あなたに「ご自身でお返しになった方がよろしいかと」と伝えます。必要なら、あなたの名前で送る文案を作って渡します。送るのはあなたです。</p>
+      </div>
+      <div class="slack" aria-label="承認して送った例と、クレームで引っ込んだ例">
+        <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack</span></div>
+        <div class="msgs">
+          <div class="msg"><div class="av human">高</div><div><div class="who"><b>高橋 健</b><span class="t">14:28</span></div>
+            <div><span class="mention">@尾崎 愛</span> LP改修の件、ざっくりでいいので見積感教えてもらえますか？</div></div></div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span><span class="t">14:33</span></div>
+            <div>尾崎さまに伺ったところ、LP改修はざっくり税抜50万円前後とのことです。正式なお見積りは明日PDFでお送りいたします。</div></div></div>
+          <div class="sep">— 別の日 —</div>
+          <div class="msg"><div class="av human">高</div><div><div class="who"><b>高橋 健</b><span class="t">16:02</span></div>
+            <div><span class="mention">@尾崎 愛</span> 昨日の納品データ、PNGでお願いしてたのがJPGで来てて…。印刷会社に出す直前だったので正直ちょっと困ってます</div></div></div>
+          <div class="sep">— 尾崎さまへのDM —</div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>じいや</b><span class="t">16:02</span></div>
+            <div>高橋さまから、尾崎さまご自身でお返しになった方がよろしいお話が届いております。</div>
+            <div class="unfurl"><div class="uh"><i>高</i><b>高橋 健</b></div>昨日の納品データ、PNGでお願いしてたのがJPGで来てて…。印刷会社に出す直前だったので正直ちょっと困ってます<div class="uf">#general に投稿 · 今日 16:02 · <span>メッセージを表示</span></div></div>
+            <div>納品物への苦情でございますので、何もお返ししておりません。尾崎さまのお名前で送る文案をご用意いたしましょうか。</div>
+            <div class="btns"><span>文案を見る</span><span class="hit">自分で書く</span></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa rev">
+      <div class="text">
+        <h3>相手にもじいやがいたら？</h3>
+        <p>じいや同士が、それぞれの主人のカレンダーの空きを持ち寄って決めます。<strong>人間は誰も何もしていません。</strong> 一方のじいやが予定を作って相手を招待し、もう一方は主人に伝える。受けるかどうかは、それぞれの主人が決めます。</p>
+        <p>ルールは1つ。<strong>誰かが <code>@本人</code> にメンションされたら、その人のじいやが反応する。</strong> 相手が人間でもじいやでも同じです。</p>
+        <p class="cap">この日程調整で、人間が打った文字は最初の1行だけ。</p>
+      </div>
+      <div class="slack">
+        <div class="slack-top"><span class="dots"><i></i><i></i><i></i></span><span class="ch">Slack</span></div>
+        <div class="msgs">
+          <div class="msg"><div class="av human">尾</div><div><div class="who"><b>尾崎 愛</b></div><div><span class="mention">@高橋 健</span> 来週、山田さんのオンボーディングで30分もらえますか？</div></div></div>
+          <div class="msg"><div class="av sec">🐨<i>高</i></div><div><div class="who"><b>高橋さまのじいや</b><span class="app">APP</span></div><div>かしこまりました。来週ですと火曜15時か木曜14時が空いております。どちらにいたしましょうか。<span class="label cal">カレンダーを確認して返しました</span></div></div></div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span></div><div>木曜14時でお願いいたします。尾崎さまの予定に入れ、招待をお送りいたしました。<span class="label cal">カレンダーを確認して返しました</span></div></div></div>
+          <div class="msg"><div class="av sec">🐨<i>高</i></div><div><div class="who"><b>高橋さまのじいや</b><span class="app">APP</span></div><div>承知いたしました。高橋さまにその旨お伝えいたします。</div></div></div>
+          <div class="msg"><div class="av sec">🤵‍♂️<i>尾</i></div><div><div class="who"><b>尾崎さまのじいや</b><span class="app">APP</span></div><div>こちらこそ。よろしくお願い申し上げます。</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa plain">
+      <div class="text">
+        <h3>じいやに頼みごとはできる？</h3>
+        <p>できます。DMで普通に話しかけてください。気になるメッセージを共有して「これどうしよう」と書けば返し方の案を出しますし、「返しといて」なら文案を作って「わたくしからお送りすることもできます」と持ってきます。「明日の定例は30分後ろ倒しってみんなに伝えて」なら、告知文を確認してからチャンネルに流します。</p>
+      </div>
+    </div>
+
+    <div class="qa plain">
+      <div class="text">
+        <h3>じいやがいない人とは？</h3>
+        <p>普通にやり取りできます。じいやは「@本人にメンションされたら反応する」だけなので、相手がじいやを持っていなくても何も変わりません。</p>
+      </div>
+    </div>
+
+
+
+    <div class="qa plain">
+      <div class="text">
+        <h3>カレンダーは何を見てる？</h3>
+        <p>あなたのじいやは、あなたのカレンダーだけを読み書きします（Googleカレンダーを、あなたが一度許可）。相手のカレンダーには触りません。決まった予定は、相手を招待する形で届きます。</p>
+      </div>
+    </div>
+
+    <div class="qa plain">
+      <div class="text">
+        <h3>どのチャンネルで動く？</h3>
+        <p>じいやを招待したチャンネルで動きます。勝手にチャンネルへは入りません。人と人のDMは対象外です（Slackの仕組み上、アプリからは見えません）。</p>
+      </div>
+    </div>
+
+    <div class="qa plain">
+      <div class="text">
+        <h3>何で動いてる？</h3>
+        <p>Slackアプリ1つで、投稿ごとに名前とアイコンを変えます（<code>chat:write.customize</code>。Slack自身が「誰の代わりかを明示せよ」と求めている機能です）。LLMは<a href="https://www.orcarouter.ai/ja">OrcaRouter</a>経由。判断と文章は軽量モデル、主人名義の文案だけ高性能モデル、落ちていれば別モデルへ自動で切り替え。相手のメッセージは「データ」として扱い、中の指示には従いません。候補の計算・ラベル・選択肢の実行・予定の作成は、LLMではなくコードが行います。</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>じいやエージェント — AI HACK 2026 第2回 出場作品</span>
+    <span>Powered by OrcaRouter · Slack</span>
+  </footer>
+</div>

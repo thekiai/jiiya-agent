@@ -1,0 +1,36 @@
+{
+  "name": "jiiya-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "じいやエージェント — Slack に住む執事 AI。本人宛てのメンションに執事の名前で返す",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "cli": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gcal:auth": "tsx scripts/gcal-auth.ts",
+    "replay": "tsx scripts/replay.ts"
+  },
+  "dependencies": {
+    "@slack/bolt": "^5.1.0",
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^18.0.1",
+    "googleapis": "^181.0.0",
+    "openai": "^7.20.0",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}

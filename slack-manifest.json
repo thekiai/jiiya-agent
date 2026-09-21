@@ -1,0 +1,72 @@
+{
+  "display_information": {
+    "name": "じいやエージェント",
+    "description": "Slack に住む、あなたの執事。ビジネスチャットはじいやにお任せください🤵‍♂️",
+    "background_color": "#2b2b2b",
+    "long_description": "あなた宛てのメンションに、あなたの執事（じいや）が自分の名前で返します。日程はあなたのカレンダーを見て自分で決め、確定したら相手を招待します。判断が要ることはボタンひとつであなたに聞き、答えを伝聞の文面にして、あなたが見てから送ります。クレームや感情的な話は黙ってあなたに回します。本人のふりをして送ることはありません。相手にもじいやがいれば、じいや同士で日程を決めます。"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "jiiya",
+      "always_online": true
+    },
+    "app_home": {
+      "messages_tab_enabled": true,
+      "messages_tab_read_only_enabled": false
+    },
+    "shortcuts": [
+      {
+        "name": "じいやに任せる",
+        "type": "message",
+        "callback_id": "summon",
+        "description": "このメッセージへの対応を、待たずに今すぐじいやに任せる"
+      },
+      {
+        "name": "じいやは下がって",
+        "type": "message",
+        "callback_id": "dismiss",
+        "description": "じいやの待機を取り消して、自分で返す"
+      }
+    ],
+    "slash_commands": [
+      {
+        "command": "/jiiya",
+        "description": "待機中の件を今すぐ出す（引数: 状況 / 下がって）",
+        "usage_hint": "[状況|下がって]",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "chat:write",
+        "chat:write.customize",
+        "channels:join",
+        "channels:read",
+        "channels:history",
+        "groups:history",
+        "im:history",
+        "im:write",
+        "users:read",
+        "commands",
+        "users:read.email"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "message.channels",
+        "message.groups",
+        "message.im"
+      ]
+    },
+    "interactivity": {
+      "is_enabled": true
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": true,
+    "token_rotation_enabled": false
+  }
+}
